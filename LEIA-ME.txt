@@ -1,0 +1,27 @@
+ATUALIZA 40+ — ÁREA DE MEMBROS BRASIL
+
+COMO ABRIR
+Abra o arquivo index.html desta pasta no navegador.
+Para transferir a área para outro computador, copie a pasta inteira ou extraia o ZIP completo. Os mapas precisam permanecer junto dos demais arquivos.
+
+CONTEÚDO DESTA VERSÃO
+150 mapas originais em português: 45 de Celular, 35 de WhatsApp, 35 de Computador e 35 de Ferramentas Digitais.
+Busca por título, categorias, favoritos, marcação de conclusão, retomada do último mapa, zoom, download e impressão.
+Interface adaptada para celular e computador, com opção de letras maiores.
+Seções preparadas para bônus, materiais extras (order bump) e conteúdo complementar (upsell), sem conteúdos ou preços inventados.
+
+PRÓXIMOS CONTEÚDOS
+Os novos materiais poderão ser adicionados à configuração dist/content.js e à pasta dist, mantendo a estrutura atual.
+As seções vazias mostram que os materiais ainda não foram adicionados. Nenhuma compra ou liberação automática é simulada.
+
+ESTADO E ACESSO
+Favoritos e progresso são salvos apenas no navegador utilizado, quando ele permite armazenamento local. Não sincronizam entre aparelhos e podem ser apagados ao limpar os dados do navegador.
+Esta versão é a estrutura de navegação e leitura para revisão. Não possui cadastro de alunos, senha, confirmação de pagamento ou controle de acesso por produto comprado. Esses recursos precisam ser integrados antes de distribuir uma área comercial protegida aos compradores.
+Não publique estes arquivos em um endereço público sem proteção de acesso, pois os mapas poderiam ficar disponíveis a qualquer visitante.
+
+REFERÊNCIA LATAM
+O arquivo da área LATAM informado pelo proprietário está no outro computador e não pôde ser inspecionado. Esta versão segue a identidade dos materiais brasileiros. A comparação visual com a área anterior permanece pendente.
+
+VERIFICAÇÃO
+Os 150 arquivos foram conferidos contra o manifesto do ZIP original, com validação de tamanho e SHA-256. As listas de conteúdo apontam para arquivos existentes e o JavaScript passou na verificação de sintaxe.
+A inspeção visual automática do navegador não foi concluída porque o acesso à prévia foi recusado.
