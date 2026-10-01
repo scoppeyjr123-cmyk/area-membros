@@ -1,9 +1,37 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#087970"><title>Atualiza 40+ | Minha biblioteca</title><meta name="description" content="Sua biblioteca Atualiza 40+: 150 mapas visuais em português para aprender tecnologia no seu ritmo."><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script defer src="content.js"></script><script defer src="app.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#087970"><title>Atualiza 40+ | Minha biblioteca</title><meta name="description" content="Sua biblioteca Atualiza 40+: 150 mapas visuais em português para aprender tecnologia no seu ritmo."><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script><script src="supabase-config.js"></script><script src="auth.js"></script><script defer src="content.js"></script><script defer src="app.js"></script></head>
 <body>
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-brand">Atualiza<span>40+</span></div>
+    <div class="login-subtitle">ÁREA DE MEMBROS · BRASIL</div>
+    <div class="login-header">
+      <h2>Entrar na biblioteca</h2>
+      <p>Digite seu e-mail e sua senha de acesso para continuar aprendendo.</p>
+    </div>
+    <div id="loginAlert" class="auth-alert auth-alert-error" hidden>
+      <span class="auth-alert-icon">!</span>
+      <span id="loginAlertMessage">E-mail ou senha incorretos. Por favor, verifique e tente novamente.</span>
+    </div>
+    <form id="loginForm" class="login-form" novalidate>
+      <div class="form-group">
+        <label for="loginEmail">E-mail de acesso</label>
+        <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Senha</label>
+        <input type="password" id="loginPassword" placeholder="Sua senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="loginSubmitBtn" class="primary btn-submit">
+        <span id="loginBtnText">Entrar na área de membros</span>
+        <span id="loginBtnSpinner" class="spinner" hidden></span>
+      </button>
+    </form>
+  </div>
+</div>
 <aside class="sidebar" id="sidebar"><a class="brand" href="#biblioteca" aria-label="Atualiza 40+, início">Atualiza<span>40+</span></a><div class="side-caption">ÁREA DE MEMBROS · BRASIL</div><nav aria-label="Navegação principal"><button class="nav-item active" data-view="all"><span data-icon="book"></span> Minha biblioteca</button><button class="nav-item" data-view="favorites"><span data-icon="star"></span> Meus favoritos</button><button class="nav-item" data-view="completed"><span data-icon="check"></span> Mapas concluídos</button><div class="nav-label">SEUS CONTEÚDOS</div><button class="nav-item" data-view="bonus"><span data-icon="gift"></span> Bônus</button><button class="nav-item" data-view="orderBump"><span data-icon="layers"></span> Materiais extras</button><button class="nav-item" data-view="upsell"><span data-icon="spark"></span> Conteúdo complementar</button></nav><div class="side-bottom"><div class="side-note">Um passo de cada vez.<br><strong>Você também consegue.</strong></div><button class="nav-item" id="help"><span data-icon="help"></span> Como usar a biblioteca</button></div></aside>
-<div class="shell"><header class="topbar"><button class="icon-button mobile-menu" id="menu" aria-label="Abrir menu" aria-expanded="false"><span data-icon="menu"></span></button><span class="breadcrumb">Sua jornada de aprendizado</span><div class="top-actions"><button class="text-size" id="textSize" aria-pressed="false" title="Aumentar as letras">A<span>+</span> <span class="size-label">Letras maiores</span></button><span class="member"><span data-icon="user"></span> Meu espaço</span></div></header>
+<div class="shell"><header class="topbar"><button class="icon-button mobile-menu" id="menu" aria-label="Abrir menu" aria-expanded="false"><span data-icon="menu"></span></button><span class="breadcrumb">Sua jornada de aprendizado</span><div class="top-actions"><button class="text-size" id="textSize" aria-pressed="false" title="Aumentar as letras">A<span>+</span> <span class="size-label">Letras maiores</span></button><span class="member"><span data-icon="user"></span> <span id="userEmailLabel">Meu espaço</span></span><button class="btn-logout" id="logoutBtn" title="Sair da área de membros">Sair</button></div></header>
 <main id="biblioteca"><section class="welcome"><div><div class="eyebrow">APRENDA NO SEU RITMO</div><h1>Tecnologia mais simples.<br><span>Mais liberdade para você.</span></h1><p>Encontre o que precisa e acompanhe cada passo no mapa visual.</p><button class="primary" id="continue">Começar pelo primeiro mapa</button></div><div class="progress-card"><span class="progress-label">MEU APRENDIZADO</span><div class="progress-number"><strong id="doneCount">0</strong><span>/ 150 mapas</span></div><div class="progress-track"><div id="progressFill"></div></div><p id="progressText">Seu primeiro passo começa aqui.</p><small>Seu progresso fica salvo neste navegador.</small></div></section>
 <section class="category-section" aria-labelledby="categoryTitle"><div class="section-heading"><h2 id="categoryTitle">O que você quer aprender hoje?</h2><span>4 categorias · 150 mapas visuais</span></div><div class="categories" id="categories"></div></section>
 <section class="library-section"><div class="library-heading"><div><div class="eyebrow" id="libraryEyebrow">SUA BIBLIOTECA</div><h2 id="libraryTitle">Todos os mapas visuais</h2></div><label class="search"><span data-icon="search"></span><input type="search" id="search" placeholder="Buscar: Wi-Fi, foto, mensagem…" aria-label="Buscar mapas por assunto"></label></div><div class="filter-line"><span id="resultCount" aria-live="polite"></span><button class="clear-filter" id="clearFilter" hidden>Ver todos os mapas</button></div><div class="map-grid" id="mapGrid"></div><div id="empty" class="empty" hidden></div><button class="load-more" id="loadMore">Mostrar mais mapas</button></section>

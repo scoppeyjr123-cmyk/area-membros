@@ -40,4 +40,113 @@ let searchTimer;$('search').addEventListener('input',()=>{clearTimeout(searchTim
  $('mapImage').onerror=()=>{$('mapImage').hidden=true;$('imageError').hidden=false};
  $('help').onclick=()=>{$('helpDialog').showModal();document.body.classList.remove('menu-open');$('menu').setAttribute('aria-expanded','false')};$('closeHelp').onclick=$('startHelp').onclick=()=>$('helpDialog').close();
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('menu-open')){document.body.classList.remove('menu-open');$('menu').setAttribute('aria-expanded','false')}if(!$('reader').open||/INPUT|TEXTAREA/.test(event.target.tagName))return;if(event.key==='ArrowLeft'&&!$('previous').disabled)$('previous').click();if(event.key==='ArrowRight'&&!$('next').disabled)$('next').click()});
- document.documentElement.classList.toggle('large-text',state.large);$('textSize').setAttribute('aria-pressed',state.large);render();
+  document.documentElement.classList.toggle('large-text',state.large);$('textSize').setAttribute('aria-pressed',state.large);render();
+  function showLoginOverlay(alertMsg, alertType) {
+    const overlay = $('loginOverlay');
+    if (overlay) overlay.hidden = false;
+    const alertBox = $('loginAlert');
+    if (alertBox) {
+      if (alertMsg) {
+        $('loginAlertMessage').textContent = alertMsg;
+        alertBox.className = 'auth-alert auth-alert-' + (alertType || 'error');
+        alertBox.hidden = false;
+      } else {
+        alertBox.hidden = true;
+      }
+    }
+  }
+
+  function hideLoginOverlay() {
+    const overlay = $('loginOverlay');
+    if (overlay) overlay.hidden = true;
+  }
+
+  function setLoginLoading(loading) {
+    const btn = $('loginSubmitBtn');
+    const text = $('loginBtnText');
+    const spinner = $('loginBtnSpinner');
+    if (!btn) return;
+    btn.disabled = loading;
+    if (text) text.hidden = loading;
+    if (spinner) spinner.hidden = !loading;
+  }
+
+  async function checkAuthStatus() {
+    if (!window.AuthModule || !window.AuthModule.isConfigured()) {
+      showLoginOverlay(
+        'Supabase ainda não configurado. Por favor, adicione suas credenciais públicas em dist/supabase-config.js',
+        'warning'
+      );
+      return;
+    }
+
+    const session = await window.AuthModule.getSession();
+    if (session && session.user) {
+      hideLoginOverlay();
+      if ($('userEmailLabel')) $('userEmailLabel').textContent = session.user.email;
+    } else {
+      showLoginOverlay();
+    }
+  }
+
+  const loginForm = $('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = $('loginEmail').value.trim();
+      const password = $('loginPassword').value;
+
+      if (!email || !password) {
+        showLoginOverlay('Por favor, preencha o e-mail e a senha.');
+        return;
+      }
+
+      setLoginLoading(true);
+      if ($('loginAlert')) $('loginAlert').hidden = true;
+
+      try {
+        const data = await window.AuthModule.signIn(email, password);
+        setLoginLoading(false);
+        if (data && (data.session || data.user)) {
+          hideLoginOverlay();
+          const u = data.user || (data.session && data.session.user);
+          if ($('userEmailLabel') && u) $('userEmailLabel').textContent = u.email;
+          notify('Bem-vindo(a) de volta!');
+        }
+      } catch (err) {
+        setLoginLoading(false);
+        let msg = 'E-mail ou senha incorretos. Por favor, verifique suas credenciais e tente novamente.';
+        if (err.message && err.message.indexOf('Supabase não configurado') !== -1) {
+          msg = err.message;
+        } else if (err.message && err.message.toLowerCase().indexOf('rate limit') !== -1) {
+          msg = 'Muitas tentativas. Por favor, aguarde alguns instantes e tente novamente.';
+        }
+        showLoginOverlay(msg, 'error');
+      }
+    });
+  }
+
+  const logoutBtn = $('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function () {
+      if (window.AuthModule && window.AuthModule.isConfigured()) {
+        await window.AuthModule.signOut();
+      }
+      if ($('userEmailLabel')) $('userEmailLabel').textContent = 'Meu espaço';
+      showLoginOverlay('Você saiu da sua conta.', 'warning');
+    });
+  }
+
+  if (window.AuthModule && window.AuthModule.isConfigured()) {
+    window.AuthModule.onAuthStateChange(function (event, session) {
+      if (event === 'SIGNED_IN' && session) {
+        hideLoginOverlay();
+        if ($('userEmailLabel')) $('userEmailLabel').textContent = session.user.email;
+      } else if (event === 'SIGNED_OUT') {
+        showLoginOverlay();
+      }
+    });
+  }
+
+  checkAuthStatus();
+
