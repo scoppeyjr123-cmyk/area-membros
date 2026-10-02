@@ -10,8 +10,8 @@
 
 window.SUPABASE_CONFIG = {
   // Exemplo: 'https://xyzcompany.supabase.co'
-  url: 'SUA_SUPABASE_URL_AQUI',
+  url: 'https://rpkxrgmxqlhetkdzmcsf.supabase.co',
   
   // Exemplo: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-  anonKey: 'SUA_SUPABASE_ANON_KEY_AQUI'
+  anonKey: 'sb_publishable_d-jlNdbhbRwcAYNqH0uYEQ_Yg450f9s'
 };
