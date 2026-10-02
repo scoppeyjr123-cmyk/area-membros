@@ -632,8 +632,10 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
   border: 1px solid var(--line); border-radius: var(--radius);
   background: var(--card); overflow: hidden; position: relative;
   display: flex; flex-direction: column; justify-content: space-between;
-  transition: box-shadow var(--transition), border-color var(--transition);
+  transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
 }
+.extra-card::before { content: ''; height: 5px; background: linear-gradient(90deg, var(--category), color-mix(in srgb, var(--category) 35%, white)); display: block; }
+.extra-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(20,92,90,.11); }
 .extra-card .card-body {
   padding: 28px 24px; display: flex; flex-direction: column; flex: 1;
 }
@@ -659,7 +661,7 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
 }
 .extra-card-status svg { width: 16px; height: 16px; flex-shrink: 0; }
 .extra-card.is-locked { border-color: #e4ebed; }
-.extra-card.is-locked:hover { box-shadow: var(--shadow-sm); }
+.extra-card.is-locked:hover { box-shadow: 0 10px 24px rgba(20,92,90,.07); }
 .extra-card.is-unlocked {
   border-color: var(--green-soft);
   box-shadow: 0 2px 12px rgba(20,92,90,.06);
@@ -671,6 +673,7 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
 }
 .btn-lock-state.locked { background: var(--bg); color: var(--text-muted); border: 1px solid var(--line); }
 .btn-lock-state.unlocked { background: var(--green-light); color: var(--green); border: 1px solid var(--green-soft); }
+.extra-card.is-unlocked .btn-lock-state.unlocked { box-shadow: inset 0 0 0 1px rgba(20,92,90,.04); }
 
 .library-locked-banner {
   background: var(--gold-light); border: 1px solid #fce4a6;
@@ -771,6 +774,9 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
   .card-body h3 { font-size: .92rem; min-height: 4em; }
   .card-bottom { font-size: .82rem; flex-wrap: wrap; gap: 6px; }
   .favorite-button { right: 8px; top: 8px; width: 38px; height: 38px; }
+  .extra-card .card-body { padding: 22px 18px; }
+  .extra-card h3 { font-size: 1.05rem; }
+  .extra-card-header { align-items: flex-start; }
 
   /* Reader */
   .reader { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
@@ -808,6 +814,7 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
   .map-preview { height: 200px; }
   .card-body h3 { min-height: 0; }
   .member { display: none; }
+  .extra-card .card-body { padding-inline: 16px; }
   .categories { grid-template-columns: 1fr; }
 }
 
