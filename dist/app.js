@@ -20,7 +20,9 @@ const icons={
   left:'<path d="m15 5-7 7 7 7"/>',
   right:'<path d="m9 5 7 7-7 7"/>',
   lock:'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
-  unlock:'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'
+  unlock:'<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+  moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'
 };
 const icon=name=>`<svg viewBox="0 0 24 24" aria-hidden="true">${icons[name]||icons.book}</svg>`;
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
@@ -30,9 +32,22 @@ const categories=window.ATUALIZA_CONTENT.categories;
 const maps=categories.flatMap(cat=>cat.titles.map((title,i)=>({id:`${cat.id}-${String(i+1).padStart(3,'0')}`,title,category:cat.id,name:cat.name,color:cat.color,number:i+1,path:`mapas/${cat.id}/${cat.id}-${String(i+1).padStart(3,'0')}.webp`})));
 let saved={};try{saved=JSON.parse(localStorage.getItem('atualiza40-br-v1')||'{}')||{}}catch{}
 const validIds=new Set(maps.map(m=>m.id));
-const state={favorites:new Set((Array.isArray(saved.favorites)?saved.favorites:[]).filter(id=>validIds.has(id))),completed:new Set((Array.isArray(saved.completed)?saved.completed:[]).filter(id=>validIds.has(id))),last:validIds.has(saved.last)?saved.last:null,large:saved.large===true};
+const state={favorites:new Set((Array.isArray(saved.favorites)?saved.favorites:[]).filter(id=>validIds.has(id))),completed:new Set((Array.isArray(saved.completed)?saved.completed:[]).filter(id=>validIds.has(id))),last:validIds.has(saved.last)?saved.last:null,large:saved.large===true,theme:saved.theme||'dark'};
 let view='all',category=null,limit=12,active=null,readerList=[],zoom=1,toastTimer;
 function save(){try{localStorage.setItem('atualiza40-br-v1',JSON.stringify({...state,favorites:[...state.favorites],completed:[...state.completed]}))}catch{notify('Não foi possível salvar neste navegador.')}}
+function applyTheme(t){
+  state.theme=t;
+  document.documentElement.setAttribute('data-theme',t);
+  const btn=$('themeToggle');
+  if(btn){
+    const iconEl=$('themeIcon');
+    const labelEl=$('themeLabel');
+    if(iconEl) iconEl.innerHTML=icon(t==='dark'?'sun':'moon');
+    if(labelEl) labelEl.textContent=t==='dark'?'Modo Claro':'Modo Escuro';
+    btn.setAttribute('title',t==='dark'?'Mudar para Modo Claro':'Mudar para Modo Escuro');
+  }
+  save();
+}
 function notify(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3200)}
 function updateProgress(){
   const hasMaps = Boolean(window.EntitlementsModule && window.EntitlementsModule.has('maps_150'));
@@ -283,6 +298,8 @@ document.addEventListener('keydown',event=>{
 });
 document.documentElement.classList.toggle('large-text',state.large);
 $('textSize').setAttribute('aria-pressed',state.large);
+if($('themeToggle')) $('themeToggle').onclick=()=>applyTheme(state.theme==='dark'?'light':'dark');
+applyTheme(state.theme);
 
 function showLoginOverlay(alertMsg, alertType) {
   const overlay = $('loginOverlay');
