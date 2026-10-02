@@ -317,9 +317,9 @@ h1 span { color: var(--green); }
 .map-card {
   border: 1px solid var(--line); border-radius: var(--radius);
   background: var(--card); overflow: hidden; position: relative;
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
 }
-.map-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.map-card:hover { box-shadow: 0 14px 30px rgba(20,92,90,.12); transform: translateY(-3px); border-color: color-mix(in srgb, var(--category) 42%, var(--line)); }
 .card-open {
   background: none; display: block; width: 100%;
   text-align: left; color: inherit; padding: 0;
@@ -327,7 +327,9 @@ h1 span { color: var(--green); }
 .map-preview {
   height: 190px; background: var(--bg); overflow: hidden;
   padding: 16px 28px 0;
+  position: relative;
 }
+.map-preview::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 58%, rgba(20,92,90,.06)); pointer-events: none; }
 .map-preview img {
   display: block; width: 100%; height: 300px;
   object-fit: cover; object-position: top;
@@ -366,6 +368,7 @@ h1 span { color: var(--green); }
 .favorite-button:hover { background: #fff; color: var(--gold); }
 .favorite-button[aria-pressed=true] { color: #c78a15; }
 .favorite-button[aria-pressed=true] svg { fill: var(--gold-light); }
+.map-card:has(.done-badge) { border-color: rgba(20,92,90,.28); }
 .load-more {
   display: block; margin: 28px auto 8px;
   border: 1px solid var(--line); color: var(--green); font-weight: 600;
@@ -405,6 +408,7 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
 .reader {
   width: min(1120px, 96vw); height: 94dvh; max-height: 94dvh;
   padding: 0; overflow: hidden;
+  background: var(--card);
 }
 .reader[open] { display: flex; flex-direction: column; }
 .reader-header {
@@ -731,6 +735,7 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
 
   /* Welcome */
   .welcome { padding: 28px 22px; display: block; }
+  .welcome::after { right: -80px; bottom: -120px; }
   h1 { font-size: 1.8rem; }
   .welcome p { margin: 14px 0 20px; }
   .progress-card { margin-top: 22px; padding: 20px; }
@@ -750,6 +755,17 @@ dialog::backdrop { background: rgba(16,40,40,.82); backdrop-filter: blur(4px); }
   .search { margin-top: 16px; width: 100%; }
   .library-heading h2 { font-size: 1.3rem; }
   .map-grid { gap: 14px; }
+  .map-preview { height: 150px; padding-inline: 20px; }
+  .map-preview img { height: 245px; }
+  .card-body { padding: 15px 16px 17px; }
+  .card-body h3 { font-size: .92rem; }
+  .reader-header, .reader-tools, .reader-bottom { padding-inline: 16px; }
+  .reader-tools { align-items: stretch; }
+  .zoom-controls, .reader-actions { width: 100%; justify-content: space-between; }
+  .reader-actions a, .reader-actions button { flex: 1; }
+  .image-stage { padding: 12px; }
+  .reader-bottom { padding-block: 10px; }
+  .reader-bottom .primary { min-height: 44px; padding-inline: 14px; font-size: .82rem; }
   .map-preview { height: 160px; padding: 12px 14px 0; }
   .card-body { padding: 16px 14px; }
   .card-body h3 { font-size: .92rem; min-height: 4em; }
