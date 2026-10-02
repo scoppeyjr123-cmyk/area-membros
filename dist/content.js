@@ -1,5 +1,81 @@
 window.ATUALIZA_CONTENT = {
-  extras: { bonus: [], orderBump: [], upsell: [] },
+  extras: {
+    bonus: [
+      {
+        id: 'bonus_mercado_40',
+        productCode: 'bonus_mercado_40',
+        title: 'Volte ao Mercado 40+',
+        subtitle: 'Estratégias práticas e acessíveis para modernizar seu currículo, usar o LinkedIn e participar de entrevistas online.',
+        badge: 'Kit Completo',
+        badgeRequired: 'Disponível no Kit Completo',
+        color: '#087970',
+        icon: 'gift'
+      },
+      {
+        id: 'bonus_pdf_sem_misterio',
+        productCode: 'bonus_pdf_sem_misterio',
+        title: 'PDF Sem Mistério',
+        subtitle: 'Aprenda a preencher formulários, assinar digitalmente e juntar documentos em PDF sem depender de ninguém.',
+        badge: 'Kit Completo',
+        badgeRequired: 'Disponível no Kit Completo',
+        color: '#168349',
+        icon: 'gift'
+      },
+      {
+        id: 'bonus_email_profissional',
+        productCode: 'bonus_email_profissional',
+        title: 'E-mail Profissional do Zero',
+        subtitle: 'Modelos prontos de mensagens, boas maneiras no e-mail e organização de caixas de entrada com tranquilidade.',
+        badge: 'Kit Completo',
+        badgeRequired: 'Disponível no Kit Completo',
+        color: '#2d5a9c',
+        icon: 'gift'
+      },
+      {
+        id: 'bonus_seguranca_digital',
+        productCode: 'bonus_seguranca_digital',
+        title: 'Segurança Digital 40+',
+        subtitle: 'Orientações claras para blindar senhas, identificar mensagens falsas e navegar na internet com total paz de espírito.',
+        badge: 'Kit Completo',
+        badgeRequired: 'Disponível no Kit Completo',
+        color: '#905326',
+        icon: 'gift'
+      }
+    ],
+    orderBump: [
+      {
+        id: 'bump_pix',
+        productCode: 'bump_pix',
+        title: 'Guia de PIX Sem Erro 40+',
+        subtitle: 'Como transferir, receber e ajustar limites no PIX com segurança total e sem medo de errar.',
+        badge: 'Material adicional',
+        badgeRequired: 'Este material não está incluído no seu acesso atual.',
+        color: '#087970',
+        icon: 'layers'
+      },
+      {
+        id: 'bump_celular',
+        productCode: 'bump_celular',
+        title: 'Configurar um Celular Novo do Zero 40+',
+        subtitle: 'Tudo o que você precisa fazer ao ligar um aparelho novo: contatos, fotos, contas e aplicativos essenciais.',
+        badge: 'Material adicional',
+        badgeRequired: 'Este material não está incluído no seu acesso atual.',
+        color: '#168349',
+        icon: 'layers'
+      },
+      {
+        id: 'bump_fotos_ia',
+        productCode: 'bump_fotos_ia',
+        title: 'Fotos Antigas Renovadas com IA',
+        subtitle: 'Como restaurar fotos antigas de família, melhorar a nitidez e dar cor com ferramentas digitais simples.',
+        badge: 'Material adicional',
+        badgeRequired: 'Este material não está incluído no seu acesso atual.',
+        color: '#2d5a9c',
+        icon: 'layers'
+      }
+    ],
+    upsell: []
+  },
   categories: [
     { id: 'celular', name: 'Celular', subtitle: 'Mais autonomia na palma da mão', color: '#097b72', icon: 'phone', titles: [
       'Como ligar, desligar e reiniciar o celular', 'Como entender a tela inicial', 'Como encontrar todos os aplicativos', 'Como aumentar o tamanho das letras', 'Como aumentar ou diminuir o brilho da tela', 'Como aumentar e diminuir o volume', 'Como colocar o celular no silencioso', 'Como ativar e desativar a rotação da tela', 'Como conectar o celular ao Wi-Fi', 'Como saber se o Wi-Fi está conectado', 'Como esquecer uma rede Wi-Fi e conectar novamente', 'Como ligar e desligar os dados móveis', 'Como descobrir quanto de internet móvel está usando', 'Como usar o Modo Avião', 'Como conectar um dispositivo pelo Bluetooth', 'Como instalar um aplicativo', 'Como desinstalar um aplicativo', 'Como atualizar os aplicativos', 'Como pesquisar algo na internet', 'Como abrir um link recebido', 'Como abrir várias páginas e fechar abas', 'Como salvar um site nos favoritos', 'Como ler um QR Code', 'Como usar o teclado do celular', 'Como colocar acentos e caracteres especiais', 'Como copiar e colar um texto', 'Como selecionar apenas uma parte do texto', 'Como escrever usando a voz', 'Como fazer uma captura de tela (print)', 'Como compartilhar uma foto, texto ou arquivo', 'Como tirar uma foto', 'Como tirar uma selfie', 'Como gravar um vídeo', 'Como encontrar suas fotos e vídeos', 'Como selecionar várias fotos de uma vez', 'Como cortar e ajustar uma foto', 'Como criar um álbum de fotos', 'Como apagar e recuperar uma foto excluída', 'Como encontrar um arquivo baixado', 'Como criar uma pasta para organizar arquivos', 'Como mover um arquivo para outra pasta', 'Como renomear um arquivo', 'Como apagar arquivos que não precisa mais', 'Como liberar espaço no celular sem apagar coisas importantes', 'Como verificar quanto espaço ainda existe no celular'
