@@ -43,7 +43,7 @@ function updateProgress(){
   const last=maps.find(m=>m.id===state.last);
   $('continue').textContent=hasMaps ? (last?'Continuar de onde parei':'Começar pelo primeiro mapa') : 'Biblioteca bloqueada no seu plano';
 }
-function renderCategories(){$('categories').innerHTML=categories.map(cat=>`<button class="category" style="--category:${cat.color}" data-category="${cat.id}" aria-pressed="${category===cat.id}"><span class="category-icon">${icon(cat.icon)}</span><span class="category-count">${cat.titles.length} mapas</span><strong>${cat.name}</strong><p>${cat.subtitle}</p></button>`).join('')}
+function renderCategories(){$('categories').innerHTML=categories.map((cat,index)=>`<button class="category" style="--category:${cat.color}" data-category="${cat.id}" aria-pressed="${category===cat.id}"><span class="category-cover"><span class="cover-index">0${index+1}</span><span class="category-icon">${icon(cat.icon)}</span><span class="cover-label">ATUALIZA 40+</span></span><span class="category-count">${cat.titles.length} mapas</span><strong>${cat.name}</strong><p>${cat.subtitle}</p></button>`).join('')}
 const normalize=str=>str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function filteredMaps(){const words=normalize($('search').value.trim()).split(/\s+/).filter(Boolean);return maps.filter(m=>(!category||category===m.category)&&(view!=='favorites'||state.favorites.has(m.id))&&(view!=='completed'||state.completed.has(m.id))&&words.every(word=>normalize(`${m.title} ${m.name} mapa ${m.number}`).includes(word)))}
 
@@ -69,9 +69,9 @@ function render(){
         const isUnlocked = Boolean(window.EntitlementsModule && window.EntitlementsModule.has(m.productCode));
         return `
           <article class="extra-card ${isUnlocked ? 'is-unlocked' : 'is-locked'}" style="--category:${m.color}">
+            <div class="extra-cover"><span class="cover-index">${String(m.id).includes('bonus') ? 'BÔNUS' : 'EXTRA'}</span><span class="category-icon">${icon(m.icon || 'gift')}</span><span class="cover-label">ATUALIZA 40+</span></div>
             <div class="card-body">
               <div class="extra-card-header">
-                <span class="category-icon" style="margin-bottom:0;padding:8px">${icon(m.icon || 'gift')}</span>
                 <span class="extra-tag">${isUnlocked ? 'Incluído no seu plano' : escapeHtml(m.badge || 'Adicional')}</span>
               </div>
               <h3>${escapeHtml(m.title)}</h3>
@@ -158,6 +158,7 @@ function loadMap(map){
   updateProgress();
   $('readerCategory').textContent=`${map.name} · Mapa ${String(map.number).padStart(2,'0')}`;
   $('readerTitle').textContent=map.title;
+  $('readerProgressLabel').textContent=`Guia ${maps.findIndex(item=>item.id===map.id)+1} de ${maps.length}`;
   $('mapImage').hidden=false;
   $('imageError').hidden=true;
   $('mapImage').alt=`Mapa visual: ${map.title}`;

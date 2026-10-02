@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#145C5A">
+<meta name="theme-color" content="#0F1115">
 <title>Atualiza 40+ | Área de Membros</title>
 <meta name="description" content="Área de membros Atualiza 40+: 150 mapas visuais em português para aprender tecnologia no seu ritmo.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -104,9 +104,9 @@
     <section class="welcome">
       <div>
         <div class="eyebrow">APRENDA NO SEU RITMO</div>
-        <h1>Tecnologia mais simples.<br><span>Mais liberdade para você.</span></h1>
-        <p>Encontre o que precisa e acompanhe cada passo no mapa visual.</p>
-        <button class="primary" id="continue">Começar pelo primeiro mapa</button>
+        <h1>Bem-vindo ao <span>Atualiza 40+</span></h1>
+        <p>Uma coleção premium de mapas visuais para você aprender tecnologia com calma, autonomia e confiança.</p>
+        <button class="primary" id="continue">Continuar aprendendo</button>
       </div>
       <div class="progress-card">
         <span class="progress-label">MEU APRENDIZADO</span>
@@ -124,6 +124,18 @@
         <span>4 categorias · 150 mapas visuais</span>
       </div>
       <div class="categories" id="categories"></div>
+    </section>
+
+    <section class="content-rail" aria-labelledby="contentRailTitle">
+      <div class="section-heading">
+        <h2 id="contentRailTitle">Seus conteúdos</h2>
+        <span>Mais para explorar</span>
+      </div>
+      <div class="content-rail-grid">
+        <button class="content-tile" data-view="all"><span class="tile-kicker">COLEÇÃO PRINCIPAL</span><strong>150 Mapas Visuais</strong><small>Aprenda no seu ritmo</small></button>
+        <button class="content-tile" data-view="bonus"><span class="tile-kicker">COLEÇÃO ESPECIAL</span><strong>Bônus</strong><small>Materiais para avançar</small></button>
+        <button class="content-tile" data-view="orderBump"><span class="tile-kicker">MATERIAIS EXTRAS</span><strong>Kit de apoio</strong><small>Conteúdos adicionais</small></button>
+      </div>
     </section>
 
     <!-- LIBRARY -->
@@ -156,6 +168,7 @@
     <div>
       <div class="eyebrow" id="readerCategory"></div>
       <h2 id="readerTitle"></h2>
+        <span class="reader-progress-label" id="readerProgressLabel">Guia 1 de 150</span>
     </div>
     <button class="icon-button" id="closeReader" aria-label="Fechar mapa"><span data-icon="close"></span></button>
   </div>
