@@ -213,11 +213,26 @@ function openExtraModal(id) {
   if ($('extraDialogEyebrow')) $('extraDialogEyebrow').textContent = String(m.id).startsWith('bonus') ? 'BÔNUS EXCLUSIVO LIBERADO' : 'MATERIAL EXTRA LIBERADO';
   if ($('extraDialogTitle')) $('extraDialogTitle').textContent = m.title;
   if ($('extraDialogSubtitle')) $('extraDialogSubtitle').textContent = m.subtitle || '';
-  if ($('extraDialogAction')) {
-    $('extraDialogAction').onclick = () => {
-      notify(`Acessando ${m.title}...`);
-      if ($('extraDialog')) $('extraDialog').close();
+
+  const steps = m.steps || [];
+  const bodyEl = $('extraDialogBody');
+  if (bodyEl) {
+    bodyEl.innerHTML = steps.map(step => `
+      <div class="extra-step-card">
+        <h4>${escapeHtml(step.title)}</h4>
+        <p>${escapeHtml(step.desc)}</p>
+      </div>
+    `).join('');
+  }
+
+  if ($('extraPrintBtn')) {
+    $('extraPrintBtn').onclick = () => {
+      document.body.classList.add('printing');
+      window.print();
     };
+  }
+  if ($('extraCloseBtn')) {
+    $('extraCloseBtn').onclick = () => $('extraDialog').close();
   }
   if ($('extraDialog')) $('extraDialog').showModal();
 }

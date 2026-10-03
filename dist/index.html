@@ -218,21 +218,25 @@
 </dialog>
 
 <!-- ============================================================
-     EXTRA MATERIAL DIALOG
+     EXTRA MATERIAL DIALOG / LEITOR DE GUIA
      ============================================================ -->
-<dialog class="help-dialog" id="extraDialog">
+<dialog class="help-dialog extra-dialog-container" id="extraDialog">
   <button class="icon-button help-close" id="closeExtraDialog" aria-label="Fechar material"><span data-icon="close"></span></button>
-  <div class="eyebrow" id="extraDialogEyebrow" style="color:var(--green);font-weight:700;">CONTEÚDO LIBERADO</div>
-  <h2 id="extraDialogTitle" style="margin:10px 0 14px;">Material Exclusivo</h2>
-  <p id="extraDialogSubtitle" style="color:var(--text-secondary);line-height:1.6;margin-bottom:20px;"></p>
-  <div style="background:var(--green-light);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:24px;">
-    <div style="display:flex;align-items:center;gap:10px;color:var(--green);font-weight:700;margin-bottom:6px;">
+  <div class="extra-dialog-header">
+    <div class="eyebrow" id="extraDialogEyebrow">CONTEÚDO LIBERADO</div>
+    <h2 id="extraDialogTitle">Material Exclusivo</h2>
+    <p id="extraDialogSubtitle"></p>
+  </div>
+  <div class="extra-dialog-status-box">
+    <div class="status-title">
       <span data-icon="check"></span> Acesso Vitalício Liberado no seu Plano
     </div>
-    <p style="font-size:0.9rem;color:var(--text-secondary);margin:0;">Você possui acesso total a este material interativo em alta resolução com explicações passo a passo.</p>
+    <p class="status-desc">Você possui acesso total a este guia prático interativo com orientações passo a passo.</p>
   </div>
-  <div style="display:flex;gap:12px;justify-content:flex-end;">
-    <button class="primary" id="extraDialogAction" style="padding:12px 24px;"><span data-icon="book"></span> Abrir Material Completo</button>
+  <div id="extraDialogBody" class="extra-dialog-body"></div>
+  <div class="extra-dialog-actions">
+    <button type="button" class="primary" id="extraPrintBtn"><span data-icon="print"></span> Imprimir / Salvar Guia em PDF</button>
+    <button type="button" class="btn-logout" id="extraCloseBtn">Fechar Guia</button>
   </div>
 </dialog>
 

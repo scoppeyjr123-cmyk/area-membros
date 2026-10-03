@@ -1042,3 +1042,106 @@ html[data-theme="dark"] footer strong { color: var(--gold); }
   .content-tile { min-width: 78vw; }
   .reader-bottom .primary { color: #17130b; }
 }
+
+/* ================================================================
+   EXTRA & BONUS DIALOG / GUIDE READER STYLES
+   ================================================================ */
+.extra-dialog-container {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  max-width: 680px;
+  width: 92vw;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+.extra-dialog-header .eyebrow {
+  color: var(--green);
+  font-weight: 700;
+  font-size: .75rem;
+  letter-spacing: .12em;
+}
+.extra-dialog-header h2 {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin: 8px 0 10px;
+  color: var(--dark);
+}
+.extra-dialog-header p {
+  color: var(--text-secondary);
+  font-size: .95rem;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+.extra-dialog-status-box {
+  background: var(--green-light);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 22px;
+}
+.extra-dialog-status-box .status-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+  font-weight: 700;
+  font-size: .92rem;
+  margin-bottom: 4px;
+}
+.extra-dialog-status-box .status-desc {
+  font-size: .85rem;
+  color: var(--text-secondary);
+}
+.extra-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 42vh;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-bottom: 24px;
+}
+.extra-step-card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  text-align: left;
+}
+.extra-step-card h4 {
+  margin: 0 0 6px;
+  color: var(--green);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.extra-step-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: .9rem;
+  line-height: 1.6;
+}
+.extra-dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+html[data-theme="dark"] .extra-dialog-container {
+  background: #151922;
+  border-color: #34404e;
+  color: #F8FAFC;
+}
+html[data-theme="dark"] .extra-dialog-header h2 { color: #F8FAFC; }
+html[data-theme="dark"] .extra-dialog-header p { color: #D7DEE7; }
+html[data-theme="dark"] .extra-dialog-status-box { background: #1a2528; border-color: #2b4443; }
+html[data-theme="dark"] .extra-dialog-status-box .status-title { color: #7ed5c4; }
+html[data-theme="dark"] .extra-dialog-status-box .status-desc { color: #b8c7d6; }
+html[data-theme="dark"] .extra-step-card { background: #1e2530; border-color: #2d3947; }
+html[data-theme="dark"] .extra-step-card h4 { color: #7ed5c4; }
+html[data-theme="dark"] .extra-step-card p { color: #d0dbe7; }
+html[data-theme="dark"] .extra-dialog-actions { border-top-color: #2b3441; }
