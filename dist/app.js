@@ -93,10 +93,10 @@ function render(){
               <p>${escapeHtml(m.subtitle || '')}</p>
               <div class="extra-card-footer">
                 <div class="extra-card-status">
-                  ${isUnlocked ? `${icon('unlock')} <span>Material disponível · Arquivo protegido em preparação</span>` : `${icon('lock')} <span>${escapeHtml(m.badgeRequired || 'Material bloqueado')}</span>`}
+                  ${isUnlocked ? `${icon('check')} <span style="color:var(--green);font-weight:600;">Material liberado e disponível</span>` : `${icon('lock')} <span>${escapeHtml(m.badgeRequired || 'Material bloqueado')}</span>`}
                 </div>
-                <button type="button" class="btn-lock-state ${isUnlocked ? 'unlocked' : 'locked'}" disabled>
-                  ${isUnlocked ? `${icon('unlock')} Disponível no seu plano` : `${icon('lock')} Bloqueado`}
+                <button type="button" class="btn-lock-state ${isUnlocked ? 'unlocked' : 'locked'}" data-open-extra="${m.id}" ${isUnlocked ? '' : 'disabled'}>
+                  ${isUnlocked ? `${icon('spark')} Acessar material` : `${icon('lock')} Bloqueado no seu plano`}
                 </button>
               </div>
             </div>
@@ -206,9 +206,28 @@ function closeReader(){
   render();
 }
 
+function openExtraModal(id) {
+  const extraList = Object.values(window.ATUALIZA_CONTENT.extras).flat();
+  const m = extraList.find(item => item.id === id);
+  if (!m) return;
+  if ($('extraDialogEyebrow')) $('extraDialogEyebrow').textContent = String(m.id).startsWith('bonus') ? 'BÔNUS EXCLUSIVO LIBERADO' : 'MATERIAL EXTRA LIBERADO';
+  if ($('extraDialogTitle')) $('extraDialogTitle').textContent = m.title;
+  if ($('extraDialogSubtitle')) $('extraDialogSubtitle').textContent = m.subtitle || '';
+  if ($('extraDialogAction')) {
+    $('extraDialogAction').onclick = () => {
+      notify(`Acessando ${m.title}...`);
+      if ($('extraDialog')) $('extraDialog').close();
+    };
+  }
+  if ($('extraDialog')) $('extraDialog').showModal();
+}
+if ($('closeExtraDialog')) $('closeExtraDialog').onclick = () => $('extraDialog').close();
+
 document.addEventListener('click',event=>{
   const open=event.target.closest('[data-open]');
   if(open)openMap(open.dataset.open);
+  const extraBtn=event.target.closest('[data-open-extra]');
+  if(extraBtn)openExtraModal(extraBtn.dataset.openExtra);
   const fav=event.target.closest('[data-favorite]');
   if(fav)favorite(fav.dataset.favorite);
   const cat=event.target.closest('[data-category]');
