@@ -30,10 +30,26 @@ const $=id=>document.getElementById(id);
 const escapeHtml=str=>String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const categories=window.ATUALIZA_CONTENT.categories;
 const maps=categories.flatMap(cat=>cat.titles.map((title,i)=>({id:`${cat.id}-${String(i+1).padStart(3,'0')}`,title,category:cat.id,name:cat.name,color:cat.color,number:i+1,path:`mapas/${cat.id}/${cat.id}-${String(i+1).padStart(3,'0')}.webp`})));
+const extraItemsAll = Object.values(window.ATUALIZA_CONTENT.extras).flat();
+const allContentItems = [...maps, ...extraItemsAll];
+
 let saved={};try{saved=JSON.parse(localStorage.getItem('atualiza40-br-v1')||'{}')||{}}catch{}
-const validIds=new Set(maps.map(m=>m.id));
+const validIds=new Set(allContentItems.map(m=>m.id));
 const state={favorites:new Set((Array.isArray(saved.favorites)?saved.favorites:[]).filter(id=>validIds.has(id))),completed:new Set((Array.isArray(saved.completed)?saved.completed:[]).filter(id=>validIds.has(id))),last:validIds.has(saved.last)?saved.last:null,large:saved.large===true,theme:saved.theme||'dark'};
-let view='all',category=null,limit=12,active=null,readerList=[],zoom=1,toastTimer;
+let view='all',category=null,limit=12,active=null,activeType='map',readerList=[],zoom=1,toastTimer;
+
+let pdfDoc = null;
+let pdfCurrentPage = 1;
+let pdfTotalPages = 1;
+let pdfRendering = false;
+let pdfPagePending = null;
+
+function initPdfWorker() {
+  if (typeof window !== 'undefined' && window.pdfjsLib && !window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+}
+
 function save(){try{localStorage.setItem('atualiza40-br-v1',JSON.stringify({...state,favorites:[...state.favorites],completed:[...state.completed]}))}catch{notify('Não foi possível salvar neste navegador.')}}
 function applyTheme(t){
   state.theme=t;
@@ -93,9 +109,9 @@ function render(){
               <p>${escapeHtml(m.subtitle || '')}</p>
               <div class="extra-card-footer">
                 <div class="extra-card-status">
-                  ${isUnlocked ? `${icon('check')} <span style="color:var(--green);font-weight:600;">Material liberado e disponível</span>` : `${icon('lock')} <span>${escapeHtml(m.badgeRequired || 'Material bloqueado')}</span>`}
+                  ${isUnlocked ? `${icon('check')} <span style="color:var(--green);font-weight:600;">Material liberado</span>` : `${icon('lock')} <span>${escapeHtml(m.badgeRequired || 'Material bloqueado')}</span>`}
                 </div>
-                <button type="button" class="btn-lock-state ${isUnlocked ? 'unlocked' : 'locked'}" data-open-extra="${m.id}" ${isUnlocked ? '' : 'disabled'}>
+                <button type="button" class="btn-lock-state ${isUnlocked ? 'unlocked' : 'locked'}" data-open="${m.id}" ${isUnlocked ? '' : 'disabled'}>
                   ${isUnlocked ? `${icon('spark')} Acessar material` : `${icon('lock')} Bloqueado no seu plano`}
                 </button>
               </div>
@@ -129,17 +145,21 @@ function render(){
 }
 
 function favorite(id){
-  const hasMaps = Boolean(window.EntitlementsModule && window.EntitlementsModule.has('maps_150'));
-  if (!hasMaps) {
-    notify('Biblioteca não disponível no seu acesso atual.');
+  const item = maps.find(m => m.id === id) || extraItemsAll.find(e => e.id === id);
+  if (!item) return;
+
+  const productCode = item.productCode || 'maps_150';
+  if (!window.EntitlementsModule || !window.EntitlementsModule.has(productCode)) {
+    notify('Conteúdo não disponível no seu acesso atual.');
     return;
   }
+
   if(state.favorites.has(id)){
     state.favorites.delete(id);
-    notify('Mapa removido dos favoritos.');
+    notify('Item removido dos favoritos.');
   }else{
     state.favorites.add(id);
-    notify('Mapa salvo nos favoritos.');
+    notify('Item salvo nos favoritos.');
   }
   save();
   render();
@@ -147,100 +167,187 @@ function favorite(id){
 }
 
 function updateReaderButtons(){
-  const done=state.completed.has(active.id);
-  $('complete').innerHTML=`${icon('check')}${done?'Concluído · desfazer':'Marcar como concluído'}`;
-  $('complete').setAttribute('aria-pressed',done);
-  const fav=state.favorites.has(active.id);
-  $('readerFavorite').innerHTML=`${icon('star')}${fav?'Favoritado':'Favoritar'}`;
-  $('readerFavorite').setAttribute('aria-pressed',fav);
-  const i=readerList.findIndex(m=>m.id===active.id);
-  $('previous').disabled=i<=0;
-  $('next').disabled=i>=readerList.length-1;
+  if (!active) return;
+  const done = state.completed.has(active.id);
+  $('complete').innerHTML = `${icon('check')}${done ? 'Concluído · desfazer' : 'Marcar como concluído'}`;
+  $('complete').setAttribute('aria-pressed', done);
+  const fav = state.favorites.has(active.id);
+  $('readerFavorite').innerHTML = `${icon('star')}${fav ? 'Favoritado' : 'Favoritar'}`;
+  $('readerFavorite').setAttribute('aria-pressed', fav);
+
+  if (activeType === 'map') {
+    const i = readerList.findIndex(m => m.id === active.id);
+    $('previous').disabled = i <= 0;
+    $('next').disabled = i >= readerList.length - 1;
+  } else if (activeType === 'pdf') {
+    $('previous').disabled = pdfCurrentPage <= 1;
+    $('next').disabled = pdfCurrentPage >= pdfTotalPages;
+  }
 }
 
 function setZoom(value){
-  zoom=Math.max(1,Math.min(3,value));
-  $('mapImage').style.width=`${zoom*100}%`;
-  $('zoomValue').textContent=`${Math.round(zoom*100)}%`;
-  $('zoomOut').disabled=zoom<=1;
-  $('zoomIn').disabled=zoom>=3;
+  zoom = Math.max(1, Math.min(3, value));
+  if ($('pdfCanvas') && !$('pdfCanvas').hidden) {
+    $('pdfCanvas').style.width = `${zoom * 100}%`;
+  }
+  if ($('mapImage') && !$('mapImage').hidden) {
+    $('mapImage').style.width = `${zoom * 100}%`;
+  }
+  $('zoomValue').textContent = `${Math.round(zoom * 100)}%`;
+  $('zoomOut').disabled = zoom <= 1;
+  $('zoomIn').disabled = zoom >= 3;
 }
 
 function loadMap(map){
-  active=map;
-  state.last=map.id;
+  active = map;
+  activeType = 'map';
+  pdfDoc = null;
+  state.last = map.id;
   save();
   updateProgress();
-  $('readerCategory').textContent=`${map.name} · Mapa ${String(map.number).padStart(2,'0')}`;
-  $('readerTitle').textContent=map.title;
-  $('readerProgressLabel').textContent=`Guia ${maps.findIndex(item=>item.id===map.id)+1} de ${maps.length}`;
-  $('mapImage').hidden=false;
-  $('imageError').hidden=true;
-  $('mapImage').alt=`Mapa visual: ${map.title}`;
-  $('mapImage').src=map.path;
-  $('download').href=map.path;
-  $('download').download=`Atualiza40-${map.id}.webp`;
+  $('readerCategory').textContent = `${map.name} · Mapa ${String(map.number).padStart(2,'0')}`;
+  $('readerTitle').textContent = map.title;
+  $('readerProgressLabel').textContent = `Guia ${maps.findIndex(item => item.id === map.id) + 1} de ${maps.length}`;
+  $('mapImage').hidden = false;
+  if ($('pdfCanvas')) $('pdfCanvas').hidden = true;
+  $('imageError').hidden = true;
+  $('mapImage').alt = `Mapa visual: ${map.title}`;
+  $('mapImage').src = map.path;
+  $('download').href = map.path;
+  $('download').download = `Atualiza40-${map.id}.webp`;
   setZoom(1);
-  $('imageStage').scrollTo(0,0);
+  $('imageStage').scrollTo(0, 0);
   updateReaderButtons();
 }
 
-function openMap(id,fromContinue=false){
-  if (!window.EntitlementsModule || !window.EntitlementsModule.has('maps_150')) {
-    notify('Biblioteca não disponível no seu acesso atual.');
+async function renderPdfPage(num) {
+  if (!pdfDoc) return;
+  pdfRendering = true;
+  pdfCurrentPage = Math.max(1, Math.min(pdfTotalPages, num));
+
+  try {
+    const page = await pdfDoc.getPage(pdfCurrentPage);
+    const canvas = $('pdfCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const viewport = page.getViewport({ scale: 2.0 });
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    const renderContext = {
+      canvasContext: ctx,
+      viewport: viewport
+    };
+
+    await page.render(renderContext).promise;
+    pdfRendering = false;
+
+    if (pdfPagePending !== null) {
+      const p = pdfPagePending;
+      pdfPagePending = null;
+      renderPdfPage(p);
+    }
+  } catch (err) {
+    console.error('Erro ao renderizar página do PDF:', err);
+    pdfRendering = false;
+  }
+
+  if ($('pdfCanvas')) $('pdfCanvas').hidden = false;
+  $('mapImage').hidden = true;
+  $('imageError').hidden = true;
+
+  setZoom(zoom);
+
+  $('readerProgressLabel').textContent = `Página ${String(pdfCurrentPage).padStart(2, '0')} de ${pdfTotalPages}`;
+  updateReaderButtons();
+}
+
+function queueRenderPage(num) {
+  if (pdfRendering) {
+    pdfPagePending = num;
+  } else {
+    renderPdfPage(num);
+  }
+}
+
+async function loadPdfContent(item) {
+  active = item;
+  activeType = 'pdf';
+  state.last = item.id;
+  save();
+  updateProgress();
+
+  initPdfWorker();
+
+  $('readerCategory').textContent = item.badge || (String(item.id).startsWith('bonus') ? 'BÔNUS EXCLUSIVO' : 'MATERIAL EXTRA');
+  $('readerTitle').textContent = item.title;
+  $('readerProgressLabel').textContent = 'Carregando documento...';
+
+  $('download').href = item.pdfUrl;
+  $('download').download = `${item.title}.pdf`;
+
+  setZoom(1);
+  $('imageStage').scrollTo(0, 0);
+
+  $('mapImage').hidden = true;
+  if ($('pdfCanvas')) $('pdfCanvas').hidden = true;
+
+  try {
+    const loadingTask = window.pdfjsLib.getDocument(item.pdfUrl);
+    pdfDoc = await loadingTask.promise;
+    pdfTotalPages = pdfDoc.numPages;
+    pdfCurrentPage = 1;
+    renderPdfPage(1);
+  } catch (err) {
+    console.error('Erro ao carregar documento PDF:', err);
+    $('imageError').hidden = false;
+    $('imageError').textContent = 'Não foi possível carregar o documento PDF. Feche e tente abrir novamente.';
+  }
+}
+
+function openContent(id, fromContinue = false) {
+  const map = maps.find(m => m.id === id);
+  if (map) {
+    if (!window.EntitlementsModule || !window.EntitlementsModule.has('maps_150')) {
+      notify('Biblioteca não disponível no seu acesso atual.');
+      return;
+    }
+    readerList = fromContinue ? maps : filteredMaps();
+    if (!readerList.some(m => m.id === id)) readerList = maps;
+    loadMap(map);
+    $('reader').showModal();
+    document.body.style.overflow = 'hidden';
     return;
   }
-  const map=maps.find(m=>m.id===id);
-  if(!map)return;
-  readerList=fromContinue?maps:filteredMaps();
-  if(!readerList.some(m=>m.id===id))readerList=maps;
-  loadMap(map);
-  $('reader').showModal();
-  document.body.style.overflow='hidden';
+
+  const extra = extraItemsAll.find(e => e.id === id);
+  if (extra) {
+    if (!window.EntitlementsModule || !window.EntitlementsModule.has(extra.productCode)) {
+      notify('Material não disponível no seu acesso atual.');
+      return;
+    }
+    loadPdfContent(extra);
+    $('reader').showModal();
+    document.body.style.overflow = 'hidden';
+    return;
+  }
+}
+
+function openMap(id, fromContinue = false) {
+  openContent(id, fromContinue);
 }
 
 function closeReader(){
   $('reader').close();
-  document.body.style.overflow='';
-  active=null;
+  document.body.style.overflow = '';
+  active = null;
+  pdfDoc = null;
   render();
 }
 
-function openExtraModal(id) {
-  const extraList = Object.values(window.ATUALIZA_CONTENT.extras).flat();
-  const m = extraList.find(item => item.id === id);
-  if (!m) return;
-  if ($('extraDialogEyebrow')) $('extraDialogEyebrow').textContent = String(m.id).startsWith('bonus') ? 'BÔNUS EXCLUSIVO LIBERADO' : 'MATERIAL EXTRA LIBERADO';
-  if ($('extraDialogTitle')) $('extraDialogTitle').textContent = m.title;
-  if ($('extraDialogSubtitle')) $('extraDialogSubtitle').textContent = m.subtitle || '';
-
-  const pdfUrl = m.pdfUrl || '';
-  if ($('extraPdfFrame')) $('extraPdfFrame').src = pdfUrl;
-  if ($('extraDownloadLink')) {
-    $('extraDownloadLink').href = pdfUrl;
-    $('extraDownloadLink').download = `${m.title}.pdf`;
-  }
-  if ($('extraOpenNewTab')) $('extraOpenNewTab').href = pdfUrl;
-
-  if ($('extraDialog')) {
-    $('extraDialog').showModal();
-    document.body.style.overflow = 'hidden';
-  }
-}
-function closeExtraModal() {
-  if ($('extraDialog')) {
-    $('extraDialog').close();
-    document.body.style.overflow = '';
-    if ($('extraPdfFrame')) $('extraPdfFrame').src = '';
-  }
-}
-if ($('closeExtraDialog')) $('closeExtraDialog').onclick = closeExtraModal;
-
 document.addEventListener('click',event=>{
   const open=event.target.closest('[data-open]');
-  if(open)openMap(open.dataset.open);
-  const extraBtn=event.target.closest('[data-open-extra]');
-  if(extraBtn)openExtraModal(extraBtn.dataset.openExtra);
+  if(open)openContent(open.dataset.open);
   const fav=event.target.closest('[data-favorite]');
   if(fav)favorite(fav.dataset.favorite);
   const cat=event.target.closest('[data-category]');
@@ -290,23 +397,36 @@ $('textSize').onclick=()=>{state.large=!state.large;document.documentElement.cla
 $('closeReader').onclick=closeReader;
 $('reader').addEventListener('cancel',event=>{event.preventDefault();closeReader();});
 $('reader').addEventListener('click',event=>{if(event.target===$('reader'))closeReader();});
-$('previous').onclick=()=>{const i=readerList.findIndex(m=>m.id===active.id);if(i>0)loadMap(readerList[i-1]);};
-$('next').onclick=()=>{const i=readerList.findIndex(m=>m.id===active.id);if(i<readerList.length-1)loadMap(readerList[i+1]);};
+
+$('previous').onclick=()=>{
+  if (activeType === 'pdf') {
+    if (pdfCurrentPage > 1) queueRenderPage(pdfCurrentPage - 1);
+  } else {
+    const i = readerList.findIndex(m => m.id === active.id);
+    if (i > 0) loadMap(readerList[i - 1]);
+  }
+};
+
+$('next').onclick=()=>{
+  if (activeType === 'pdf') {
+    if (pdfCurrentPage < pdfTotalPages) queueRenderPage(pdfCurrentPage + 1);
+  } else {
+    const i = readerList.findIndex(m => m.id === active.id);
+    if (i < readerList.length - 1) loadMap(readerList[i + 1]);
+  }
+};
+
 $('zoomIn').onclick=()=>setZoom(zoom+.25);
 $('zoomOut').onclick=()=>setZoom(zoom-.25);
 $('zoomReset').onclick=()=>setZoom(1);
 $('readerFavorite').onclick=()=>favorite(active.id);
 $('complete').onclick=()=>{
-  const hasMaps = Boolean(window.EntitlementsModule && window.EntitlementsModule.has('maps_150'));
-  if (!hasMaps) {
-    notify('Biblioteca não disponível no seu acesso atual.');
-    return;
-  }
-  const id=active.id;
-  if(state.completed.has(id)){
+  if (!active) return;
+  const id = active.id;
+  if (state.completed.has(id)) {
     state.completed.delete(id);
     notify('Conclusão desfeita.');
-  }else{
+  } else {
     state.completed.add(id);
     notify('Mais um passo concluído!');
   }
@@ -314,11 +434,10 @@ $('complete').onclick=()=>{
   updateProgress();
   updateReaderButtons();
 };
+
 $('print').onclick=()=>{document.body.classList.add('printing');window.print();};
 window.addEventListener('afterprint',()=>document.body.classList.remove('printing'));
-$('mapImage').onerror=()=>{$('mapImage').hidden=true;$('imageError').hidden=false;};
-$('help').onclick=()=>{$('helpDialog').showModal();document.body.classList.remove('menu-open');$('menu').setAttribute('aria-expanded','false');};
-$('closeHelp').onclick=$('startHelp').onclick=()=>$('helpDialog').close();
+
 document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('menu-open')){
     document.body.classList.remove('menu-open');
@@ -471,5 +590,3 @@ if (window.AuthModule && window.AuthModule.isConfigured()) {
 }
 
 checkAuthStatus();
-
-

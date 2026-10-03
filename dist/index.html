@@ -11,6 +11,7 @@
 <script src="supabase-config.js?v=3"></script>
 <script src="auth.js?v=3"></script>
 <script src="entitlements.js?v=3"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script defer src="content.js?v=3"></script>
 <script defer src="app.js?v=3"></script>
 </head>
@@ -191,7 +192,8 @@
   </div>
   <div class="image-stage" id="imageStage">
     <img id="mapImage" alt="" draggable="false">
-    <p id="imageError" hidden>Não foi possível carregar o mapa. Feche e tente abrir novamente.</p>
+    <canvas id="pdfCanvas" hidden></canvas>
+    <p id="imageError" hidden>Não foi possível carregar o conteúdo. Feche e tente abrir novamente.</p>
   </div>
   <div class="reader-bottom">
     <button id="previous"><span data-icon="left"></span> Anterior</button>
@@ -215,31 +217,6 @@
   </ol>
   <p>Favoritos, progresso e tamanho das letras ficam salvos apenas neste navegador. Em outro aparelho, eles começam novamente.</p>
   <button class="primary" id="startHelp">Explorar os mapas</button>
-</dialog>
-
-<!-- ============================================================
-     EXTRA MATERIAL & BONUS PDF READER DIALOG
-     ============================================================ -->
-<dialog class="reader extra-pdf-reader" id="extraDialog">
-  <header class="reader-header">
-    <div>
-      <div class="eyebrow" id="extraDialogEyebrow">BÔNUS LIBERADO</div>
-      <h2 id="extraDialogTitle">Material Exclusivo</h2>
-    </div>
-    <button class="icon-button" id="closeExtraDialog" aria-label="Fechar leitor"><span data-icon="close"></span></button>
-  </header>
-  <div class="reader-tools">
-    <div class="extra-toolbar-content">
-      <span id="extraDialogSubtitle" class="extra-subtitle"></span>
-      <div class="extra-action-buttons">
-        <a id="extraDownloadLink" class="primary" href="#" download><span data-icon="download"></span> Baixar PDF</a>
-        <a id="extraOpenNewTab" href="#" target="_blank" rel="noopener" class="nav-item">Abrir em Tela Cheia</a>
-      </div>
-    </div>
-  </div>
-  <div class="image-stage pdf-stage" id="extraPdfStage">
-    <iframe id="extraPdfFrame" src="" title="Visualizador de PDF"></iframe>
-  </div>
 </dialog>
 
 <div class="toast" id="toast" role="status" hidden></div>
