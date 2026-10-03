@@ -53,7 +53,8 @@
           'bonus_seguranca_digital',
           'bump_pix',
           'bump_celular',
-          'bump_fotos_ia'
+          'bump_fotos_ia',
+          'bump_financas'
         ];
         allProducts.forEach(function (code) {
           activeEntitlements.add(code);

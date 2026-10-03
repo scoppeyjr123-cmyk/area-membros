@@ -214,29 +214,27 @@ function openExtraModal(id) {
   if ($('extraDialogTitle')) $('extraDialogTitle').textContent = m.title;
   if ($('extraDialogSubtitle')) $('extraDialogSubtitle').textContent = m.subtitle || '';
 
-  const steps = m.steps || [];
-  const bodyEl = $('extraDialogBody');
-  if (bodyEl) {
-    bodyEl.innerHTML = steps.map(step => `
-      <div class="extra-step-card">
-        <h4>${escapeHtml(step.title)}</h4>
-        <p>${escapeHtml(step.desc)}</p>
-      </div>
-    `).join('');
+  const pdfUrl = m.pdfUrl || '';
+  if ($('extraPdfFrame')) $('extraPdfFrame').src = pdfUrl;
+  if ($('extraDownloadLink')) {
+    $('extraDownloadLink').href = pdfUrl;
+    $('extraDownloadLink').download = `${m.title}.pdf`;
   }
+  if ($('extraOpenNewTab')) $('extraOpenNewTab').href = pdfUrl;
 
-  if ($('extraPrintBtn')) {
-    $('extraPrintBtn').onclick = () => {
-      document.body.classList.add('printing');
-      window.print();
-    };
+  if ($('extraDialog')) {
+    $('extraDialog').showModal();
+    document.body.style.overflow = 'hidden';
   }
-  if ($('extraCloseBtn')) {
-    $('extraCloseBtn').onclick = () => $('extraDialog').close();
-  }
-  if ($('extraDialog')) $('extraDialog').showModal();
 }
-if ($('closeExtraDialog')) $('closeExtraDialog').onclick = () => $('extraDialog').close();
+function closeExtraModal() {
+  if ($('extraDialog')) {
+    $('extraDialog').close();
+    document.body.style.overflow = '';
+    if ($('extraPdfFrame')) $('extraPdfFrame').src = '';
+  }
+}
+if ($('closeExtraDialog')) $('closeExtraDialog').onclick = closeExtraModal;
 
 document.addEventListener('click',event=>{
   const open=event.target.closest('[data-open]');

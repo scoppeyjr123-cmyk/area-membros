@@ -10,24 +10,7 @@ window.ATUALIZA_CONTENT = {
         badgeRequired: 'Disponível no Kit Completo',
         color: '#087970',
         icon: 'gift',
-        steps: [
-          {
-            title: '1. Modernizando seu Currículo',
-            desc: 'Destaque suas principais conquistas recentes e habilidades práticas. Salve o arquivo em PDF com seu nome completo para transmitir profissionalismo.'
-          },
-          {
-            title: '2. Criando um Perfil Atraente no LinkedIn',
-            desc: 'Adicione uma foto bem iluminada com fundo neutro, preencha o título profissional com suas áreas de interesse e adicione um resumo objetivo da sua trajetória.'
-          },
-          {
-            title: '3. Preparação para Entrevistas Online',
-            desc: 'Baixe os aplicativos (Zoom, Google Meet ou Teams) antes da reunião, teste o microfone, a câmera e escolha um ambiente silencioso e bem iluminado.'
-          },
-          {
-            title: '4. Networking e Contatos Profissionais',
-            desc: 'Conecte-se com antigos colegas de trabalho, participe de grupos do seu setor e envie mensagens corteses informando sua disponibilidade no mercado.'
-          }
-        ]
+        pdfUrl: 'pdf/bonus/Volte_ao_Mercado.pdf'
       },
       {
         id: 'bonus_pdf_sem_misterio',
@@ -38,24 +21,7 @@ window.ATUALIZA_CONTENT = {
         badgeRequired: 'Disponível no Kit Completo',
         color: '#168349',
         icon: 'gift',
-        steps: [
-          {
-            title: '1. Entendendo o Formato PDF',
-            desc: 'O PDF preserva a formatação exata do documento em qualquer computador ou celular, garantindo que nada saia do lugar ao abrir ou enviar.'
-          },
-          {
-            title: '2. Preenchendo Formulários em PDF',
-            desc: 'Abra o arquivo PDF no leitor ou navegador, clique nos campos editáveis destacando o texto e digite suas informações diretamente.'
-          },
-          {
-            title: '3. Assinando Documentos Digitalmente',
-            desc: 'Utilize a ferramenta de assinatura do leitor de PDF ou o portal gov.br para assinar contratos e declarações com validade jurídica.'
-          },
-          {
-            title: '4. Juntando e Dividindo Arquivos PDF',
-            desc: 'Aprenda a combinar várias páginas em um único arquivo PDF organizado para enviar por e-mail ou WhatsApp sem complicação.'
-          }
-        ]
+        pdfUrl: 'pdf/bonus/PDF_Sem_Misterio.pdf'
       },
       {
         id: 'bonus_email_profissional',
@@ -66,24 +32,7 @@ window.ATUALIZA_CONTENT = {
         badgeRequired: 'Disponível no Kit Completo',
         color: '#2d5a9c',
         icon: 'gift',
-        steps: [
-          {
-            title: '1. Estrutura de uma Mensagem Profissional',
-            desc: 'Escreva um assunto claro e direto. Inicie com uma saudação respeitosa, apresente o objetivo no primeiro parágrafo e encerre com assinatura formal.'
-          },
-          {
-            title: '2. Modelos Prontos de E-mail',
-            desc: 'Acesse modelos prontos para envio de documentos, solicitações de informações, agendamento de reuniões e agradecimentos.'
-          },
-          {
-            title: '3. Anexando Arquivos Corretamente',
-            desc: 'Confira se o arquivo foi anexado antes de enviar, verifique o tamanho limite do anexo e certifique-se de que o nome do arquivo seja legível.'
-          },
-          {
-            title: '4. Organização e Pastas na Caixa de Entrada',
-            desc: 'Crie marcadores e pastas por categorias (Finanças, Trabalho, Pessoal) para manter sua caixa de entrada limpa e encontrar mensagens em segundos.'
-          }
-        ]
+        pdfUrl: 'pdf/bonus/Email_Profissional_do_Zero.pdf'
       },
       {
         id: 'bonus_seguranca_digital',
@@ -94,24 +43,7 @@ window.ATUALIZA_CONTENT = {
         badgeRequired: 'Disponível no Kit Completo',
         color: '#905326',
         icon: 'gift',
-        steps: [
-          {
-            title: '1. Criando Senhas Fortes e Seguras',
-            desc: 'Utilize frases secretas combinando letras maiúsculas, números e símbolos. Evite usar datas de aniversário ou sequências óbvias como 123456.'
-          },
-          {
-            title: '2. Identificando Golpes e Mensagens Falsas',
-            desc: 'Desconfie de ofertas absurdas ou pedidos urgentes de dinheiro por SMS ou WhatsApp. Bancos nunca pedem senhas por mensagem ou ligação.'
-          },
-          {
-            title: '3. Ativando a Autenticação em Duas Etapas',
-            desc: 'Ative a camada extra de segurança no WhatsApp, e-mail e redes sociais. Mesmo que alguém descubra sua senha, não conseguirá acessar sem o código.'
-          },
-          {
-            title: '4. Navegação Segura na Internet',
-            desc: 'Verifique se o site possui o ícone de cadeado ao lado do endereço web antes de digitar dados pessoais ou de cartão de crédito.'
-          }
-        ]
+        pdfUrl: 'pdf/bonus/Seguranca_Digital.pdf'
       }
     ],
     orderBump: [
@@ -124,24 +56,7 @@ window.ATUALIZA_CONTENT = {
         badgeRequired: 'Este material não está incluído no seu acesso atual.',
         color: '#087970',
         icon: 'layers',
-        steps: [
-          {
-            title: '1. Entendendo as Chaves PIX',
-            desc: 'Saiba a diferença entre usar CPF, e-mail, número de celular ou chave aleatória para receber pagamentos de forma prática.'
-          },
-          {
-            title: '2. Conferência de Dados Antes do Envio',
-            desc: 'Sempre confira o nome completo, banco e o valor antes de digitar a senha de confirmação para evitar transferências incorretas.'
-          },
-          {
-            title: '3. Ajustando Limites de Transferência',
-            desc: 'Aprenda a definir limites diários e noturnos no aplicativo do seu banco para garantir sua proteção financeira.'
-          },
-          {
-            title: '4. O que Fazer em Caso de Erro ou Suspeita',
-            desc: 'Saiba como utilizar o Mecanismo Especial de Devolução (MED) do PIX para notificar o banco imediatamente em caso de engano ou fraude.'
-          }
-        ]
+        pdfUrl: 'pdf/extras/Guia_Pix_Sem_Erro.pdf'
       },
       {
         id: 'bump_celular',
@@ -149,27 +64,10 @@ window.ATUALIZA_CONTENT = {
         title: 'Configurar um Celular Novo do Zero 40+',
         subtitle: 'Tudo o que você precisa fazer ao ligar um aparelho novo: contatos, fotos, contas e aplicativos essenciais.',
         badge: 'Material adicional',
-        badgeRequired: 'Este material não me está incluído no seu acesso atual.',
+        badgeRequired: 'Este material não está incluído no seu acesso atual.',
         color: '#168349',
         icon: 'layers',
-        steps: [
-          {
-            title: '1. Conectando sua Conta Principal',
-            desc: 'Faça login com sua conta Google (Android) ou Apple ID (iPhone) para sincronizar automaticamente contatos, agenda e backups.'
-          },
-          {
-            title: '2. Transferindo Dados sem Perder Nada',
-            desc: 'Utilize os aplicativos oficiais de migração para mover fotos, vídeos e conversas do WhatsApp do aparelho antigo para o novo com facilidade.'
-          },
-          {
-            title: '3. Ajustes de Conforto Visual e Som',
-            desc: 'Aumente o tamanho das letras, ajuste o brilho automático e defina toques de chamada com volume adequado para o seu dia a dia.'
-          },
-          {
-            title: '4. Instalando Aplicativos Essenciais',
-            desc: 'Passo a passo para baixar com segurança apps de bancos, transporte, saúde e comunicação direto da loja oficial de aplicativos.'
-          }
-        ]
+        pdfUrl: 'pdf/extras/Configurar_Um_Celular_Novo_do_Zero.pdf'
       },
       {
         id: 'bump_fotos_ia',
@@ -180,24 +78,18 @@ window.ATUALIZA_CONTENT = {
         badgeRequired: 'Este material não está incluído no seu acesso atual.',
         color: '#2d5a9c',
         icon: 'layers',
-        steps: [
-          {
-            title: '1. Digitalizando Fotos Antigas em Alta Qualidade',
-            desc: 'Use a câmera do celular com aplicativo de scanner para capturar fotos de papel sem reflexos de luz e com contornos alinhados.'
-          },
-          {
-            title: '2. Removendo Riscos e Aumentando a Nitidez',
-            desc: 'Envie a imagem digitalizada para aplicativos gratuitos de Inteligência Artificial que corrigem arranhões e restauram detalhes faciais.'
-          },
-          {
-            title: '3. Colorindo Imagens em Preto e Branco',
-            desc: 'Aplique algoritmos automáticos de coloração para dar cores realistas e vivas às fotos históricas de família.'
-          },
-          {
-            title: '4. Organizando e Compartilhando as Memórias',
-            desc: 'Crie um álbum digital na nuvem para compartilhar as fotos restauradas com filhos e netos pelo WhatsApp com facilidade.'
-          }
-        ]
+        pdfUrl: 'pdf/extras/Fotos_Antigas_Renovadas_IA.pdf'
+      },
+      {
+        id: 'bump_financas',
+        productCode: 'bump_financas',
+        title: 'Finanças 40+ Produto Final',
+        subtitle: 'Guia prático para organização financeira, planejamento pessoal e gestão de contas com tranquilidade.',
+        badge: 'Material adicional',
+        badgeRequired: 'Este material não está incluído no seu acesso atual.',
+        color: '#905326',
+        icon: 'layers',
+        pdfUrl: 'pdf/extras/Financas_40_Produto_Final.pdf'
       }
     ],
     upsell: []
