@@ -58,9 +58,25 @@ function inferOffer(input: unknown) {
 }
 
 function normalizeAction(input: unknown) {
-  const s = normalizeText(input);
-  if (["paid","approved","completed","complete","purchase_approved","pago","aprovado","payment.success"].some(v => s.includes(v))) return "approved";
-  if (["refunded","refund","chargedback","chargeback","charged_back","cancelled","canceled","reembols","estorno"].some(v => s.includes(v))) return "revoked";
+  const s = normalizeText(input).replace(/[\\s.-]+/g, "_");
+
+  // Estados sem liberação precisam ser avaliados antes de "paid",
+  // pois "unpaid" contém a substring "paid".
+  if ([
+    "unpaid","pending","waiting_payment","credit_card_declined","declined",
+    "failed","processing","created"
+  ].includes(s)) return "ignored";
+
+  if ([
+    "refunded","refund","chargedback","chargeback","charged_back",
+    "cancelled","canceled","reembolsado","reembolso","estorno"
+  ].includes(s)) return "revoked";
+
+  if ([
+    "paid","approved","completed","complete","purchase_approved",
+    "pago","aprovado","payment_success"
+  ].includes(s)) return "approved";
+
   return "ignored";
 }
 
