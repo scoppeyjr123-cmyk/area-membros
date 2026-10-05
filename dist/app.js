@@ -482,6 +482,32 @@ function setLoginLoading(loading) {
   if (spinner) spinner.hidden = !loading;
 }
 
+async function consumePurchaseAccessFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('access');
+  if (!token || !window.AuthModule || !window.AuthModule.isConfigured()) return null;
+
+  try {
+    setLoginLoading(true);
+    const data = await window.AuthModule.signInFromPurchaseToken(token);
+    notify('Seu acesso foi liberado. Bem-vindo(a)!');
+    return data;
+  } catch (err) {
+    console.error('Falha ao usar link de acesso da compra:', err);
+    showLoginOverlay(
+      (err && err.message) || 'Este link não é mais válido. Digite o e-mail usado na compra.',
+      'warning'
+    );
+    return null;
+  } finally {
+    setLoginLoading(false);
+    params.delete('access');
+    const query = params.toString();
+    const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+}
+
 async function checkAuthStatus() {
   if (!window.AuthModule || !window.AuthModule.isConfigured()) {
     showLoginOverlay(
@@ -491,7 +517,10 @@ async function checkAuthStatus() {
     return;
   }
 
-  const session = await window.AuthModule.getSession();
+  const purchaseData = await consumePurchaseAccessFromUrl();
+  let session = purchaseData && purchaseData.session ? purchaseData.session : null;
+  if (!session) session = await window.AuthModule.getSession();
+
   if (session && session.user) {
     hideLoginOverlay();
     if ($('userEmailLabel')) $('userEmailLabel').textContent = session.user.email;
@@ -513,10 +542,9 @@ if (loginForm) {
   loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     const email = $('loginEmail').value.trim();
-    const password = $('loginPassword').value;
 
-    if (!email || !password) {
-      showLoginOverlay('Por favor, preencha o e-mail e a senha.');
+    if (!email) {
+      showLoginOverlay('Digite o mesmo e-mail usado na compra.');
       return;
     }
 
@@ -524,7 +552,7 @@ if (loginForm) {
     if ($('loginAlert')) $('loginAlert').hidden = true;
 
     try {
-      const data = await window.AuthModule.signIn(email, password);
+      const data = await window.AuthModule.signIn(email);
       setLoginLoading(false);
       if (data && (data.session || data.user)) {
         hideLoginOverlay();
@@ -538,11 +566,13 @@ if (loginForm) {
       }
     } catch (err) {
       setLoginLoading(false);
-      let msg = 'E-mail ou senha incorretos. Por favor, verifique suas credenciais e tente novamente.';
-      if (err.message && err.message.indexOf('Supabase não configurado') !== -1) {
-        msg = err.message;
-      } else if (err.message && err.message.toLowerCase().indexOf('rate limit') !== -1) {
-        msg = 'Muitas tentativas. Por favor, aguarde alguns instantes e tente novamente.';
+      let msg = (err && err.message) || 'Não foi possível liberar o acesso com esse e-mail.';
+      if (msg.indexOf('Supabase não configurado') !== -1) {
+        // mantém a mensagem técnica de configuração apenas para ambiente sem configuração
+      } else if (msg.toLowerCase().indexOf('tentativas') !== -1 || (err && err.status === 429)) {
+        msg = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+      } else if (msg.toLowerCase().indexOf('não foi possível') === -1) {
+        msg = 'Não foi possível liberar o acesso com esse e-mail.';
       }
       showLoginOverlay(msg, 'error');
     }

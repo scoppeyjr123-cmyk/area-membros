@@ -9,11 +9,11 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <script src="supabase-config.js?v=3"></script>
-<script src="auth.js?v=3"></script>
-<script src="entitlements.js?v=3"></script>
+<script src="auth.js?v=4"></script>
+<script src="entitlements.js?v=4"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script defer src="content.js?v=3"></script>
-<script defer src="app.js?v=3"></script>
+<script defer src="app.js?v=4"></script>
 </head>
 <body>
 
@@ -41,23 +41,19 @@
       <div class="login-subtitle">ÁREA DE MEMBROS · BRASIL</div>
       <div class="login-header">
         <h2>Entrar na sua área</h2>
-        <p>Digite seu e-mail e sua senha de acesso para continuar aprendendo.</p>
+        <p>Digite o mesmo e-mail usado na compra para entrar. Você não precisa de senha.</p>
       </div>
       <div id="loginAlert" class="auth-alert auth-alert-error" hidden>
         <span class="auth-alert-icon">!</span>
-        <span id="loginAlertMessage">E-mail ou senha incorretos. Por favor, verifique e tente novamente.</span>
+        <span id="loginAlertMessage">Não foi possível liberar o acesso com esse e-mail.</span>
       </div>
       <form id="loginForm" class="login-form" novalidate>
         <div class="form-group">
           <label for="loginEmail">E-mail de acesso</label>
           <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" required autocomplete="email">
         </div>
-        <div class="form-group">
-          <label for="loginPassword">Senha</label>
-          <input type="password" id="loginPassword" placeholder="Sua senha" required autocomplete="current-password">
-        </div>
         <button type="submit" id="loginSubmitBtn" class="primary btn-submit">
-          <span id="loginBtnText">Entrar na área de membros</span>
+          <span id="loginBtnText">Acessar minha área</span>
           <span id="loginBtnSpinner" class="spinner" hidden></span>
         </button>
       </form>
