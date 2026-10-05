@@ -133,3 +133,15 @@ revoke all on table public.purchase_notifications from anon, authenticated;
 -- 1) insert a SHA-256 webhook secret into public.webhook_secrets.
 -- 2) set public.app_settings.member_app_url to the deployed member-area URL.
 -- Do not commit the raw webhook secret.
+
+
+create table if not exists public.external_offer_mappings (
+  provider text not null,
+  external_id text not null,
+  offer_code text not null,
+  label text,
+  created_at timestamptz not null default timezone('utc'::text, now()),
+  primary key (provider, external_id)
+);
+alter table public.external_offer_mappings enable row level security;
+revoke all on table public.external_offer_mappings from anon, authenticated;
