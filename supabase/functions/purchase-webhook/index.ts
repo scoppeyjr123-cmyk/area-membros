@@ -37,14 +37,18 @@ function deepGet(obj: any, paths: string[]) {
   return null;
 }
 
-function normalizeOffer(input: unknown) {
-  const raw = String(input ?? "").trim();
-  if (!raw) return "";
-  const s = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function normalizeText(input: unknown) {
+  return String(input ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
-  if (["kit_basico","kit-completo","kit_completo","bump_pix","bump_celular","bump_fotos_ia"].includes(s)) {
-    return s.replace("kit-completo","kit_completo");
-  }
+function inferOffer(input: unknown) {
+  const s = normalizeText(input);
+  if (!s) return "";
+  if (["kit_basico","kit_completo","bump_pix","bump_celular","bump_fotos_ia"].includes(s)) return s;
   if (s.includes("kit") && s.includes("basico")) return "kit_basico";
   if (s.includes("kit") && s.includes("completo")) return "kit_completo";
   if (s.includes("pix")) return "bump_pix";
@@ -54,9 +58,9 @@ function normalizeOffer(input: unknown) {
 }
 
 function normalizeAction(input: unknown) {
-  const s = String(input ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  if (["approved","paid","completed","complete","purchase_approved","pago","aprovado"].some(v => s.includes(v))) return "approved";
-  if (["refund","refunded","chargeback","charged_back","cancelled","canceled","reembols","estorno"].some(v => s.includes(v))) return "revoked";
+  const s = normalizeText(input);
+  if (["paid","approved","completed","complete","purchase_approved","pago","aprovado","payment.success"].some(v => s.includes(v))) return "approved";
+  if (["refunded","refund","chargedback","chargeback","charged_back","cancelled","canceled","reembols","estorno"].some(v => s.includes(v))) return "revoked";
   return "ignored";
 }
 
@@ -76,6 +80,59 @@ async function findUser(admin: any, email: string) {
   return existing?.id || null;
 }
 
+async function mappedOffer(admin: any, provider: string, externalId: unknown, label: unknown) {
+  const id = String(externalId ?? "").trim();
+  if (id) {
+    const { data } = await admin
+      .from("external_offer_mappings")
+      .select("offer_code")
+      .eq("provider", provider)
+      .eq("external_id", id)
+      .maybeSingle();
+    if (data?.offer_code) return data.offer_code;
+  }
+  return inferOffer(label);
+}
+
+async function collectOfferCodes(admin: any, provider: string, payload: any) {
+  const codes = new Set<string>();
+
+  const explicit = deepGet(payload, ["offer_code","product_code","plan","data.offer_code","data.product_code","data.plan"]);
+  const explicitCode = inferOffer(explicit);
+  if (explicitCode) codes.add(explicitCode);
+
+  if (payload?.checkout) {
+    const base = await mappedOffer(admin, provider, payload.checkout.id, payload.checkout.title);
+    if (base) codes.add(base);
+
+    if (Array.isArray(payload.checkout.orderbump)) {
+      for (const item of payload.checkout.orderbump) {
+        const code = await mappedOffer(admin, provider, item?.id, item?.title);
+        if (code) codes.add(code);
+      }
+    }
+  }
+
+  if (Array.isArray(payload?.products)) {
+    for (const item of payload.products) {
+      const code = await mappedOffer(admin, provider, item?.id, item?.title);
+      if (code) codes.add(code);
+    }
+  }
+
+  const genericProduct = deepGet(payload, ["product","data.product"]);
+  if (genericProduct && typeof genericProduct === "object") {
+    const code = await mappedOffer(admin, provider, genericProduct.id, genericProduct.name || genericProduct.title);
+    if (code) codes.add(code);
+  }
+
+  const rawOffer = deepGet(payload, ["offer.name","data.offer.name","product.name","data.product.name"]);
+  const inferred = inferOffer(rawOffer);
+  if (inferred) codes.add(inferred);
+
+  return Array.from(codes);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ ok: false }, 405);
@@ -87,7 +144,13 @@ Deno.serve(async (req: Request) => {
 
   try {
     const requestUrl = new URL(req.url);
-    const suppliedKey = req.headers.get("x-webhook-key") || requestUrl.searchParams.get("key") || "";
+    let suppliedKey =
+      req.headers.get("x-webhook-key") ||
+      req.headers.get("authorization") ||
+      requestUrl.searchParams.get("key") ||
+      "";
+    suppliedKey = suppliedKey.replace(/^Bearer\s+/i, "").trim();
+
     if (!suppliedKey) return json({ ok: false }, 401);
 
     const { data: secretRow } = await admin
@@ -101,29 +164,29 @@ Deno.serve(async (req: Request) => {
     }
 
     const payload = await req.json().catch(() => ({}));
+    const isWiapy = Boolean(payload?.payment || payload?.checkout || payload?.customer);
+    const provider = isWiapy
+      ? "wiapy"
+      : String(deepGet(payload, ["provider","source"]) ?? "generic_checkout").slice(0,80);
+
     const email = String(deepGet(payload, [
       "email","customer.email","buyer.email","client.email",
       "data.email","data.customer.email","data.buyer.email","data.client.email"
     ]) ?? "").trim().toLowerCase();
 
-    const rawOffer = deepGet(payload, [
-      "offer_code","product_code","plan","product.name","offer.name",
-      "data.offer_code","data.product_code","data.plan","data.product.name","data.offer.name"
-    ]);
-    const offerCode = normalizeOffer(rawOffer);
-
     const rawStatus = deepGet(payload, [
-      "event_type","event","status","type","data.event_type","data.event","data.status","data.type"
+      "payment.status","event_type","event","status","type",
+      "data.payment.status","data.event_type","data.event","data.status","data.type"
     ]);
     const action = normalizeAction(rawStatus);
 
     let externalEventId = String(deepGet(payload, [
-      "event_id","id","transaction_id","purchase_id","order_id",
-      "data.event_id","data.id","data.transaction_id","data.purchase_id","data.order_id"
+      "payment.id","event_id","id","transaction_id","purchase_id","order_id",
+      "data.payment.id","data.event_id","data.id","data.transaction_id","data.purchase_id","data.order_id"
     ]) ?? "").trim();
-
     if (!externalEventId) externalEventId = await sha256(JSON.stringify(payload));
-    const provider = String(deepGet(payload, ["provider","source"]) ?? "generic_checkout").slice(0,80);
+
+    const offerCodes = await collectOfferCodes(admin, provider, payload);
 
     const { data: eventRow, error: eventError } = await admin
       .from("purchase_events")
@@ -132,7 +195,7 @@ Deno.serve(async (req: Request) => {
         external_event_id: externalEventId,
         event_type: String(rawStatus ?? action),
         customer_email: email || null,
-        offer_code: offerCode || null,
+        offer_code: offerCodes.join(",") || null,
         status: "received",
         payload,
       })
@@ -145,11 +208,11 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false }, 500);
     }
 
-    if (!email || !offerCode || action === "ignored") {
+    if (!email || !offerCodes.length || action === "ignored") {
       await admin.from("purchase_events").update({
         status: "ignored",
         processed_at: new Date().toISOString(),
-        error_message: !email ? "missing_email" : !offerCode ? "unknown_offer" : "ignored_event",
+        error_message: !email ? "missing_email" : !offerCodes.length ? "unknown_offer" : "ignored_event",
       }).eq("id", eventRow.id);
       return json({ ok: true, ignored: true });
     }
@@ -164,12 +227,22 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false }, 500);
     }
 
-    const { data: mappings, error: mapError } = await admin
-      .from("offer_entitlements")
-      .select("product_code")
-      .eq("offer_code", offerCode);
+    const purchaseId = String(deepGet(payload, [
+      "payment.id","purchase_id","transaction_id","order_id","id",
+      "data.payment.id","data.purchase_id","data.transaction_id","data.order_id","data.id"
+    ]) ?? externalEventId);
 
-    if (mapError || !mappings?.length) {
+    const productCodes = new Set<string>();
+    for (const offerCode of offerCodes) {
+      const { data: mappings, error: mapError } = await admin
+        .from("offer_entitlements")
+        .select("product_code")
+        .eq("offer_code", offerCode);
+      if (mapError) throw mapError;
+      (mappings || []).forEach((m: any) => productCodes.add(m.product_code));
+    }
+
+    if (!productCodes.size) {
       await admin.from("purchase_events").update({
         status: "failed",
         processed_at: new Date().toISOString(),
@@ -178,16 +251,11 @@ Deno.serve(async (req: Request) => {
       return json({ ok: false }, 500);
     }
 
-    const purchaseId = String(deepGet(payload, [
-      "purchase_id","transaction_id","order_id","id",
-      "data.purchase_id","data.transaction_id","data.order_id","data.id"
-    ]) ?? externalEventId);
-
     if (action === "approved") {
-      for (const item of mappings) {
+      for (const productCode of productCodes) {
         const { error } = await admin.from("user_entitlements").upsert({
           user_id: userId,
-          product_code: item.product_code,
+          product_code: productCode,
           status: "active",
           source: provider,
           purchase_id: purchaseId,
@@ -229,18 +297,20 @@ Deno.serve(async (req: Request) => {
       return json({
         ok: true,
         action: "approved",
-        offer_code: offerCode,
+        provider,
+        offers: offerCodes,
+        entitlements: Array.from(productCodes),
         access_url: accessUrl,
         notification_status: "pending_email_provider",
       });
     }
 
-    for (const item of mappings) {
+    for (const productCode of productCodes) {
       const { error } = await admin
         .from("user_entitlements")
         .update({ status: "revoked", updated_at: new Date().toISOString() })
         .eq("user_id", userId)
-        .eq("product_code", item.product_code);
+        .eq("product_code", productCode);
       if (error) throw error;
     }
 
@@ -249,7 +319,7 @@ Deno.serve(async (req: Request) => {
       processed_at: new Date().toISOString(),
     }).eq("id", eventRow.id);
 
-    return json({ ok: true, action: "revoked", offer_code: offerCode });
+    return json({ ok: true, action: "revoked", provider, offers: offerCodes });
   } catch (error) {
     console.error("purchase-webhook unexpected error", error);
     return json({ ok: false }, 500);
